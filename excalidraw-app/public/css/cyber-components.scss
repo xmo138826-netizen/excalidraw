@@ -1,0 +1,328 @@
+/**
+ * 赛博朋克组件样式覆盖
+ *
+ * 为关键组件应用赛博朋克风格
+ */
+
+.excalidraw.theme--cyberpunk {
+  // ============================================================================
+  // 工具栏样式
+  // ============================================================================
+  .App-toolbar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--default-border-color);
+    box-shadow: var(--shadow-island);
+
+    .ToolIcon__icon {
+      background: rgba(176, 38, 255, 0.1);
+      border: 1px solid rgba(176, 38, 255, 0.3);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(176, 38, 255, 0.2);
+        box-shadow: var(--neon-glow-primary);
+        transform: scale(1.05);
+      }
+
+      &.active {
+        background: rgba(176, 38, 255, 0.3);
+        box-shadow: var(--neon-glow-primary);
+        border-color: var(--color-primary);
+      }
+
+      svg {
+        color: var(--color-on-surface);
+      }
+    }
+
+    &__divider {
+      background-color: var(--default-border-color);
+      box-shadow: 0 0 5px var(--color-primary);
+    }
+  }
+
+  // ============================================================================
+  // 对话框样式
+  // ============================================================================
+  .ttd-dialog,
+  .dialog {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 2px solid var(--color-primary);
+    box-shadow: var(--shadow-island-stronger);
+
+    .dialog-title {
+      color: var(--color-primary);
+      text-shadow: var(--neon-glow-primary);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.1em;
+    }
+
+    .ttd-dialog-tab-trigger {
+      &.active {
+        background: rgba(176, 38, 255, 0.2);
+        border-bottom-color: var(--color-primary);
+        box-shadow: 0 0 10px rgba(176, 38, 255, 0.3);
+      }
+
+      &:hover {
+        background: rgba(176, 38, 255, 0.1);
+      }
+    }
+  }
+
+  // ============================================================================
+  // 按钮样式
+  // ============================================================================
+  .excalidraw-button,
+  .ExcButton {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border: none;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      animation: cyber-shine 3s infinite;
+    }
+
+    &:hover:not(:disabled) {
+      box-shadow: var(--neon-glow-primary);
+      transform: translateY(-2px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // ============================================================================
+  // 输入框样式
+  // ============================================================================
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    background: var(--input-bg-color);
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--input-border-color);
+    color: var(--color-on-surface);
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+    }
+
+    &::placeholder {
+      color: var(--color-on-surface-variant);
+    }
+  }
+
+  // ============================================================================
+  // 侧边栏样式
+  // ============================================================================
+  .sidebar {
+    background: var(--sidebar-bg-color);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--sidebar-border-color);
+    box-shadow: var(--sidebar-shadow);
+
+    &__header {
+      background: rgba(176, 38, 255, 0.1);
+      border-bottom: 1px solid var(--default-border-color);
+    }
+
+    &__tab-trigger {
+      &.active {
+        background: rgba(176, 38, 255, 0.2);
+        border-bottom-color: var(--color-primary);
+      }
+    }
+  }
+
+  // ============================================================================
+  // 颜色选择器样式
+  // ============================================================================
+  .color-picker {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--default-border-color);
+
+    &__swatch {
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px currentColor;
+      }
+
+      &.active {
+        box-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+      }
+    }
+  }
+
+  // ============================================================================
+  // 下拉菜单样式
+  // ============================================================================
+  .dropdown-menu {
+    background: var(--popup-bg-color);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--default-border-color);
+    box-shadow: var(--shadow-island-stronger);
+
+    &__item {
+      &:hover {
+        background: rgba(176, 38, 255, 0.1);
+        box-shadow: 0 0 10px rgba(176, 38, 255, 0.2);
+      }
+
+      &.selected {
+        background: rgba(176, 38, 255, 0.2);
+      }
+    }
+  }
+
+  // ============================================================================
+  // 工具提示样式
+  // ============================================================================
+  .tooltip {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--default-border-color);
+    box-shadow: var(--shadow-island);
+  }
+
+  // ============================================================================
+  // Toast 通知样式
+  // ============================================================================
+  .toast {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--default-border-color);
+    box-shadow: var(--shadow-island-stronger);
+
+    &.toast-success {
+      border-color: var(--color-success);
+      box-shadow: 0 0 20px rgba(0, 255, 159, 0.3);
+    }
+
+    &.toast-error {
+      border-color: var(--color-danger);
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+    }
+
+    &.toast-warning {
+      border-color: var(--color-warning);
+      box-shadow: 0 0 20px rgba(255, 221, 0, 0.3);
+    }
+  }
+
+  // ============================================================================
+  // 加载动画样式
+  // ============================================================================
+  .spinner {
+    border-color: var(--color-primary);
+    border-top-color: transparent;
+    box-shadow: 0 0 10px var(--color-primary);
+  }
+
+  // ============================================================================
+  // 滚动条样式
+  // ============================================================================
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(10, 10, 15, 0.5);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--scrollbar-thumb-hover);
+    }
+  }
+
+  // ============================================================================
+  // 选择文本样式
+  // ============================================================================
+  ::selection {
+    background: rgba(176, 38, 255, 0.3);
+    color: var(--color-on-surface);
+  }
+
+  ::-moz-selection {
+    background: rgba(176, 38, 255, 0.3);
+    color: var(--color-on-surface);
+  }
+}
+
+// ============================================================================
+// 动画定义
+// ============================================================================
+
+@keyframes cyber-shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
+
+// ============================================================================
+// 响应式调整
+// ============================================================================
+
+@media screen and (max-width: 768px) {
+  .excalidraw.theme--cyberpunk {
+    .App-toolbar {
+      .ToolIcon__icon {
+        &:hover {
+          transform: scale(1.02); // 移动端缩小缩放效果
+        }
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 性能优化
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .excalidraw.theme--cyberpunk {
+    .excalidraw-button::before,
+    .ToolIcon__icon,
+    input,
+    textarea {
+      animation: none;
+      transition: none;
+    }
+  }
+}

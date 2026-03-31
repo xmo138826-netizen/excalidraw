@@ -1,0 +1,392 @@
+/**
+ * 赛博朋克动画效果
+ *
+ * 包括霓虹闪烁、脉冲、故障效果等
+ */
+
+// ============================================================================
+// 霓虹闪烁动画
+// ============================================================================
+
+@keyframes neon-flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+    text-shadow:
+      0 0 5px #b026ff,
+      0 0 10px #b026ff,
+      0 0 20px #b026ff,
+      0 0 40px #b026ff;
+  }
+  20%, 24%, 55% {
+    opacity: 0.8;
+    text-shadow: none;
+  }
+}
+
+// ============================================================================
+// 脉冲动画
+// ============================================================================
+
+@keyframes cyber-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px #b026ff, 0 0 20px #b026ff;
+  }
+  50% {
+    box-shadow:
+      0 0 20px #b026ff,
+      0 0 40px #b026ff,
+      0 0 60px #b026ff;
+  }
+}
+
+// ============================================================================
+// 故障效果 (Glitch Effect)
+// ============================================================================
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes glitch-skew {
+  0% {
+    transform: skew(0deg);
+  }
+  20% {
+    transform: skew(-2deg);
+  }
+  40% {
+    transform: skew(2deg);
+  }
+  60% {
+    transform: skew(-1deg);
+  }
+  80% {
+    transform: skew(1deg);
+  }
+  100% {
+    transform: skew(0deg);
+  }
+}
+
+// ============================================================================
+// 扫描线动画 (已在前面的文件中定义,这里提供备用)
+// ============================================================================
+
+@keyframes scanline-vertical {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes scanline-horizontal {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+// ============================================================================
+// 数据流动画
+// ============================================================================
+
+@keyframes data-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// ============================================================================
+// 打字机效果
+// ============================================================================
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #b026ff;
+  }
+}
+
+// ============================================================================
+// 旋转加载
+// ============================================================================
+
+@keyframes cyber-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// 弹跳效果
+// ============================================================================
+
+@keyframes cyber-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+// ============================================================================
+// 渐变流动
+// ============================================================================
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// ============================================================================
+// 边框流动
+// ============================================================================
+
+@keyframes border-flow {
+  0% {
+    border-color: #b026ff;
+  }
+  33% {
+    border-color: #00ffff;
+  }
+  66% {
+    border-color: #ff00ff;
+  }
+  100% {
+    border-color: #b026ff;
+  }
+}
+
+// ============================================================================
+// 缩放脉冲
+// ============================================================================
+
+@keyframes scale-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+// ============================================================================
+// 闪烁效果
+// ============================================================================
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+// ============================================================================
+// 滑入效果
+// ============================================================================
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-top {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-bottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// ============================================================================
+// 淡入淡出
+// ============================================================================
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+// ============================================================================
+// 工具类 (可以直接应用到元素上)
+// ============================================================================
+
+.cyber-neon-flicker {
+  animation: neon-flicker 3s infinite;
+}
+
+.cyber-pulse {
+  animation: cyber-pulse 2s infinite;
+}
+
+.cyber-glitch {
+  animation: glitch 0.5s infinite;
+}
+
+.cyber-glitch-skew {
+  animation: glitch-skew 0.5s infinite;
+}
+
+.cyber-rotate {
+  animation: cyber-rotate 2s linear infinite;
+}
+
+.cyber-bounce {
+  animation: cyber-bounce 1s infinite;
+}
+
+.cyber-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 3s ease infinite;
+}
+
+.cyber-border-flow {
+  animation: border-flow 3s linear infinite;
+}
+
+.cyber-scale-pulse {
+  animation: scale-pulse 2s infinite;
+}
+
+.cyber-blink {
+  animation: blink 1s infinite;
+}
+
+.cyber-slide-in-left {
+  animation: slide-in-left 0.5s ease-out;
+}
+
+.cyber-slide-in-right {
+  animation: slide-in-right 0.5s ease-out;
+}
+
+.cyber-slide-in-top {
+  animation: slide-in-top 0.5s ease-out;
+}
+
+.cyber-slide-in-bottom {
+  animation: slide-in-bottom 0.5s ease-out;
+}
+
+.cyber-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.cyber-fade-out {
+  animation: fade-out 0.5s ease-out;
+}
+
+// ============================================================================
+// 性能优化
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .cyber-neon-flicker,
+  .cyber-pulse,
+  .cyber-glitch,
+  .cyber-glitch-skew,
+  .cyber-rotate,
+  .cyber-bounce,
+  .cyber-gradient-flow,
+  .cyber-border-flow,
+  .cyber-scale-pulse,
+  .cyber-blink {
+    animation: none;
+  }
+}

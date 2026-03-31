@@ -1,0 +1,302 @@
+/**
+ * 思维导图到 Excalidraw 元素的转换
+ *
+ * 将思维导图数据结构转换为 Excalidraw 可渲染的元素(矩形、文本、箭头)
+ */
+
+import type { MindMapDialog } from "../types";
+import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
+import { newElement, newTextElement, newArrowElement } from "@excalidraw/element";
+import type { AppState } from "../../types";
+import type { ExcalidrawArrowElement } from "@excalidraw/element/types";
+
+/**
+ * 颜色方案
+ */
+export const MIND_MAP_COLORS = [
+  "#b026ff", // 霓虹紫 (根节点, level 0)
+  "#00ffff", // 霓虹青 (一级节点, level 1)
+  "#ff00ff", // 霓虹粉 (二级节点, level 2)
+  "#00ff9f", // 霓虹绿 (三级节点, level 3)
+  "#ffdd00", // 霓虹黄 (四级节点, level 4)
+  "#ff6b6b", // 霓虹红 (五级节点, level 5+)
+];
+
+/**
+ * 获取节点颜色
+ */
+export const getNodeColor = (level: number): string => {
+  return MIND_MAP_COLORS[Math.min(level, MIND_MAP_COLORS.length - 1)];
+};
+
+/**
+ * 获取节点文本颜色
+ */
+export const getNodeTextColor = (level: number): string => {
+  return "#ffffff"; // 所有节点使用白色文本
+};
+
+/**
+ * 获取箭头颜色
+ */
+export const getArrowColor = (level: number): string => {
+  return getNodeColor(level);
+};
+
+/**
+ * 创建思维导图元素
+ *
+ * @param rootNode - 思维导图根节点
+ * @param positions - 节点位置映射
+ * @param appState - 应用状态
+ * @returns - Excalidraw 元素数组
+ */
+export const createMindMapElements = (
+  rootNode: MindMapDialog.NodeData,
+  positions: Map<string, { x: number; y: number; width: number; height: number; level: number }>,
+  appState: AppState
+): NonDeletedExcalidrawElement[] => {
+  const elements: NonDeletedExcalidrawElement[] = [];
+  const nodeElements = new Map<string, {
+    rect: NonDeletedExcalidrawElement;
+    text: NonDeletedExcalidrawElement;
+  }>();
+
+  // 当前时间戳 (用于元素 ID)
+  const now = Date.now();
+
+  /**
+   * 递归创建节点元素
+   */
+  const createNodeElements = (
+    node: MindMapDialog.NodeData,
+    index = 0
+  ) => {
+    const position = positions.get(node.id);
+    if (!position) {
+      console.warn(`Position not found for node: ${node.id}`);
+      return;
+    }
+
+    const { x, y, width, height, level } = position;
+    const color = getNodeColor(level);
+    const textColor = getNodeTextColor(level);
+
+    // 创建矩形节点
+    const rect = newElement({
+      type: "rectangle",
+      id: `${node.id}-rect-${now}`,
+      x,
+      y,
+      width,
+      height,
+      angle: 0,
+      strokeColor: color,
+      backgroundColor: color,
+      fillStyle: "solid",
+      strokeWidth: 2,
+      strokeStyle: "solid",
+      roughness: 0,
+      opacity: 100,
+      groupIds: [],
+      frameId: null,
+      index: index++,
+      roundness: { type: 3 }, // 圆角
+      seed: now,
+      version: 1,
+      isDeleted: false,
+      boundElementIds: null,
+      updated: now,
+      link: null,
+      locked: false,
+      customData: null,
+    });
+
+    // 创建文本元素
+    const text = newTextElement({
+      id: `${node.id}-text-${now}`,
+      x: x + width / 2,
+      y: y + height / 2,
+      text: node.text,
+      fontSize: 20,
+      fontFamily: 1, // Helvetica
+      textAlign: "center",
+      verticalAlign: "middle",
+      strokeColor: textColor,
+      backgroundColor: "transparent",
+      fillStyle: "solid",
+      strokeWidth: 2,
+      strokeStyle: "solid",
+      roughness: 0,
+      opacity: 100,
+      groupIds: [],
+      frameId: null,
+      index: index++,
+      seed: now,
+      version: 1,
+      isDeleted: false,
+      boundElementIds: [rect.id],
+      updated: now,
+      link: null,
+      locked: false,
+      customData: null,
+      containerId: rect.id,
+      originalText: node.text,
+      width: width - 20,
+      height: height - 20,
+      baseline: 0,
+      actualBoundingBoxAscent: 0,
+    });
+
+    elements.push(rect, text);
+    nodeElements.set(node.id, { rect, text });
+
+    // 递归创建子节点和连接箭头
+    if (node.children && node.children.length > 0) {
+      node.children.forEach((child) => {
+        const childPosition = positions.get(child.id);
+        if (!childPosition) {
+          console.warn(`Position not found for child node: ${child.id}`);
+          return;
+        }
+
+        // 创建连接箭头
+        const arrow = createArrowElement(
+          rect,
+          nodeElements.get(child.id)?.rect,
+          child.level,
+          index++,
+          now
+        );
+
+        if (arrow) {
+          elements.push(arrow);
+        }
+
+        // 递归创建子节点
+        createNodeElements(child, index);
+      });
+    }
+  };
+
+  createNodeElements(rootNode);
+
+  return elements;
+};
+
+/**
+ * 创建箭头元素
+ *
+ * @param fromElement - 起始元素
+ * @param toElement - 目标元素
+ * @param level - 目标层级 (用于确定颜色)
+ * @param index - 元素索引
+ * @param seed - 随机种子
+ * @returns - 箭头元素
+ */
+const createArrowElement = (
+  fromElement: NonDeletedExcalidrawElement,
+  toElement: NonDeletedExcalidrawElement | undefined,
+  level: number,
+  index: number,
+  seed: number
+): NonDeletedExcalidrawElement | null => {
+  if (!toElement) {
+    return null;
+  }
+
+  const now = Date.now();
+  const color = getArrowColor(level);
+
+  // 计算起点 (fromElement 的右侧中心)
+  const startX = fromElement.x + fromElement.width;
+  const startY = fromElement.y + fromElement.height / 2;
+
+  // 计算终点 (toElement 的左侧中心)
+  const endX = toElement.x;
+  const endY = toElement.y + toElement.height / 2;
+
+  // 创建箭头
+  const arrow = newArrowElement({
+    type: "arrow",
+    id: `arrow-${fromElement.id}-${toElement.id}-${now}`,
+    x: startX,
+    y: startY,
+    width: endX - startX,
+    height: endY - startY,
+    angle: 0,
+    strokeColor: color,
+    backgroundColor: "transparent",
+    fillStyle: "solid",
+    strokeWidth: 2,
+    strokeStyle: "solid",
+    roughness: 0,
+    opacity: 100,
+    groupIds: [],
+    frameId: null,
+    index,
+    roundness: null,
+    seed,
+    version: 1,
+    isDeleted: false,
+    boundElementIds: null,
+    updated: now,
+    link: null,
+    locked: false,
+    customData: null,
+    startArrowhead: null,
+    endArrowhead: "arrow",
+    elbowed: false,
+    startBinding: null,
+    endBinding: null,
+    points: [
+      [0, 0],
+      [endX - startX, endY - startY],
+    ],
+    lastCommittedPoint: null,
+    startBinding: null,
+    endBinding: {
+      elementId: toElement.id,
+      focus: 0,
+      gap: 8,
+    },
+  });
+
+  return arrow;
+};
+
+/**
+ * 生成思维导图图例数据
+ *
+ * @param rootNode - 思维导图根节点
+ * @param stats - 统计信息
+ * @returns - 图例数据
+ */
+export const generateLegendData = (
+  rootNode: MindMapDialog.NodeData,
+  stats: MindMapDialog.MindMapStats
+): Array<{
+  color: string;
+  label: string;
+  count: number;
+  glow: boolean;
+}> => {
+  const legendItems: Array<{
+    color: string;
+    label: string;
+    count: number;
+    glow: boolean;
+  }> = [];
+
+  // 为每个层级创建图例项
+  stats.levelCounts.forEach((count, level) => {
+    legendItems.push({
+      color: getNodeColor(level),
+      label: `层级 ${level}`,
+      count,
+      glow: level === 0, // 根节点发光
+    });
+  });
+
+  return legendItems;
+};

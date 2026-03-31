@@ -1,0 +1,189 @@
+/**
+ * 思维导图流式 API 调用工具
+ *
+ * 参考 TTDStreamFetch.ts 的实现模式
+ */
+
+import type { MindMapDialog } from "../types";
+import type { RequestError } from "@excalidraw/excalidraw/errors";
+import { getMindMapAPIClient } from "./apiClient";
+
+/**
+ * 解析 AI 返回的内容为思维导图数据
+ */
+const parseMindMapResponse = (content: string): MindMapDialog.NodeData => {
+  // 尝试提取 JSON (处理可能的额外文字)
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error("无法从响应中提取 JSON 数据");
+  }
+
+  try {
+    const data = JSON.parse(jsonMatch[0]);
+
+    // 验证基本结构
+    if (!data.id || !data.text || typeof data.level !== "number") {
+      throw new Error("思维导图数据格式不正确");
+    }
+
+    return data as MindMapDialog.NodeData;
+  } catch (error) {
+    throw new Error(`解析思维导图 JSON 失败: ${error instanceof Error ? error.message : "未知错误"}`);
+  }
+};
+
+/**
+ * 从响应头中提取速率限制信息
+ */
+const extractRateLimitHeaders = (headers: Headers): {
+  rateLimit?: number;
+  rateLimitRemaining?: number;
+} => {
+  const rateLimit = headers.get("X-Ratelimit-Limit");
+  const rateLimitRemaining = headers.get("X-Ratelimit-Remaining");
+
+  return {
+    rateLimit: rateLimit ? parseInt(rateLimit, 10) : undefined,
+    rateLimitRemaining: rateLimitRemaining ? parseInt(rateLimitRemaining, 10) : undefined,
+  };
+};
+
+/**
+ * 思维导图流式 API 调用
+ *
+ * @param options - 调用选项
+ * @returns - 生成结果或错误
+ */
+export const MindMapStreamFetch = async (
+  options: {
+    prompt: string;
+    onProgress?: (progress: MindMapDialog.GenerationProgress) => void;
+    onChunk?: (chunk: string) => void;
+    onStreamCreated?: () => void;
+    signal?: AbortSignal;
+  }
+): Promise<MindMapDialog.OnMindMapSubmitRetValue> => {
+  const { prompt, onProgress, onChunk, onStreamCreated, signal } = options;
+
+  try {
+    // 步骤 1: 连接到 API
+    onProgress?.({
+      stage: "connecting",
+      percent: 10,
+      message: "正在连接 AI 服务...",
+    });
+
+    const client = getMindMapAPIClient();
+
+    // 步骤 2: 开始生成
+    onProgress?.({
+      stage: "generating",
+      percent: 20,
+      message: "AI 正在生成思维导图...",
+    });
+
+    const { content, headers } = await client.generateMindMap(prompt, {
+      signal,
+      onChunk: (chunk) => {
+        onChunk?.(chunk);
+        onProgress?.({
+          stage: "generating",
+          percent: 50,
+          message: "正在接收数据...",
+        });
+      },
+    });
+
+    // 步骤 3: 解析响应
+    onProgress?.({
+      stage: "parsing",
+      percent: 80,
+      message: "正在解析思维导图结构...",
+    });
+
+    const parsedData = parseMindMapResponse(content);
+
+    // 步骤 4: 完成
+    onProgress?.({
+      stage: "done",
+      percent: 100,
+      message: "思维导图生成完成!",
+    });
+
+    // 提取速率限制信息
+    const rateLimitInfo = extractRateLimitHeaders(
+      new Headers(headers as HeadersInit)
+    );
+
+    return {
+      generatedResponse: content,
+      parsedData,
+      error: null,
+      ...rateLimitInfo,
+    };
+  } catch (error: unknown) {
+    // 处理错误
+    let requestError: RequestError;
+
+    if (error instanceof Error) {
+      if (error.name === "AbortError") {
+        requestError = {
+          name: "AbortError",
+          message: "生成被用户取消",
+          statusCode: undefined,
+        };
+      } else {
+        requestError = {
+          name: "MindMapGenerationError",
+          message: error.message,
+          statusCode: undefined,
+        };
+      }
+    } else {
+      requestError = {
+        name: "MindMapGenerationError",
+        message: "未知错误",
+        statusCode: undefined,
+      };
+    }
+
+    return {
+      generatedResponse: undefined,
+      parsedData: undefined,
+      error: requestError,
+    };
+  }
+};
+
+/**
+ * 计算思维导图统计信息
+ */
+export const calculateMindMapStats = (
+  rootNode: MindMapDialog.NodeData
+): MindMapDialog.MindMapStats => {
+  const levelCounts = new Map<number, number>();
+  let totalNodes = 0;
+  let maxDepth = 0;
+
+  const traverse = (node: MindMapDialog.NodeData, depth: number) => {
+    totalNodes++;
+    maxDepth = Math.max(maxDepth, depth);
+
+    // 统计层级
+    levelCounts.set(depth, (levelCounts.get(depth) || 0) + 1);
+
+    // 递归子节点
+    node.children?.forEach((child) => {
+      traverse(child, depth + 1);
+    });
+  };
+
+  traverse(rootNode, 0);
+
+  return {
+    totalNodes,
+    totalConnections: totalNodes - 1, // n 个节点有 n-1 条连接
+    maxDepth: maxDepth + 1, // 深度从 0 开始,所以 +1
+    levelCounts,
+  };
+};

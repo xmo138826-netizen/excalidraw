@@ -122,3 +122,89 @@ export namespace TTTDDialog {
     rateLimits: RateLimits | null;
   }) => React.ReactNode | undefined;
 }
+
+// ============================================================================
+// Mind Map Types
+// ============================================================================
+
+export namespace MindMapDialog {
+  /**
+   * 思维导图节点数据结构
+   */
+  export interface NodeData {
+    id: string;
+    text: string;
+    level: number;
+    parentId?: string;
+    children?: NodeData[];
+  }
+
+  /**
+   * 思维导图布局配置
+   */
+  export interface LayoutConfig {
+    type: "horizontal" | "vertical" | "radial";
+    nodeWidth: number;
+    nodeHeight: number;
+    horizontalGap: number;
+    verticalGap: number;
+  }
+
+  /**
+   * 思维导图生成进度
+   */
+  export type GenerationProgress = {
+    stage: "connecting" | "generating" | "parsing" | "rendering" | "done";
+    percent: number;
+    message: string;
+  };
+
+  /**
+   * 思维导图 API 提交参数
+   */
+  export type OnMindMapSubmitProps = {
+    prompt: string;
+    onProgress?: (progress: GenerationProgress) => void;
+    onChunk?: (chunk: string) => void;
+    onStreamCreated?: () => void;
+    signal?: AbortSignal;
+  };
+
+  /**
+   * 思维导图 API 返回值
+   */
+  export type OnMindMapSubmitRetValue = {
+    rateLimit?: number | null;
+    rateLimitRemaining?: number | null;
+  } & (
+    | {
+        generatedResponse: string;
+        parsedData: NodeData;
+        error: null;
+      }
+    | {
+        generatedResponse?: null;
+        parsedData?: null;
+        error: RequestError;
+      }
+  );
+
+  /**
+   * 思维导图统计信息
+   */
+  export interface MindMapStats {
+    totalNodes: number;
+    totalConnections: number;
+    maxDepth: number;
+    levelCounts: Map<number, number>;
+  }
+
+  /**
+   * 思维导图生成结果
+   */
+  export interface MindMapResult {
+    rootNode: NodeData;
+    elements: readonly NonDeletedExcalidrawElement[];
+    stats: MindMapStats;
+  }
+}

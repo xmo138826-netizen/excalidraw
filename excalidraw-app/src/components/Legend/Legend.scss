@@ -1,0 +1,276 @@
+/**
+ * Legend 组件样式
+ */
+
+.cyber-legend {
+  position: fixed;
+  background: var(--glass-bg, rgba(10, 10, 15, 0.9));
+  backdrop-filter: blur(var(--glass-blur, 20px));
+  border: 2px solid var(--color-primary, #b026ff);
+  box-shadow: var(--shadow-island-stronger);
+  border-radius: var(--border-radius-lg, 0.5rem);
+  font-family: 'Orbitron', 'Courier New', monospace;
+  z-index: var(--zIndex-ui-top, 1000);
+  min-width: 200px;
+  max-width: 300px;
+  transition: all 0.3s ease;
+  animation: legend-appear 0.5s ease-out;
+
+  // 位置变体
+  &--top-left {
+    top: 20px;
+    left: 20px;
+  }
+
+  &--top-right {
+    top: 20px;
+    right: 20px;
+  }
+
+  &--bottom-left {
+    bottom: 20px;
+    left: 20px;
+  }
+
+  &--bottom-right {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  // 折叠状态
+  &--collapsed {
+    .cyber-legend__content {
+      display: none;
+    }
+
+    .cyber-legend__toggle {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(176, 38, 255, 0.1);
+    border-bottom: 1px solid rgba(176, 38, 255, 0.3);
+    cursor: default;
+    user-select: none;
+    transition: all 0.3s ease;
+
+    &--clickable {
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(176, 38, 255, 0.2);
+      }
+    }
+  }
+
+  &__title {
+    color: var(--color-primary, #b026ff);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-shadow:
+      0 0 10px var(--color-primary, #b026ff),
+      0 0 20px var(--color-primary, #b026ff);
+    text-transform: uppercase;
+  }
+
+  &__toggle {
+    color: var(--color-accent, #00ffff);
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+    text-shadow: 0 0 5px var(--color-accent, #00ffff);
+
+    &--collapsed {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__content {
+    padding: 1rem;
+    animation: content-appear 0.3s ease-out;
+  }
+
+  &__stats {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(176, 38, 255, 0.2);
+  }
+
+  &__stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__stat-label {
+    color: var(--color-on-surface-variant, #a0a0b0);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  &__stat-value {
+    color: var(--color-accent, #00ffff);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px var(--color-accent, #00ffff);
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-left: 3px solid;
+    background: rgba(176, 38, 255, 0.05);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(176, 38, 255, 0.15);
+      transform: translateX(5px);
+    }
+  }
+
+  &__color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px currentColor;
+    transition: all 0.3s ease;
+
+    .cyber-legend__item:hover & {
+      transform: scale(1.2);
+      box-shadow: 0 0 12px currentColor;
+    }
+  }
+
+  &__label {
+    flex: 1;
+    color: var(--color-on-surface, #e0e0e0);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+
+  &__count {
+    color: var(--color-accent, #00ffff);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-shadow: 0 0 5px var(--color-accent, #00ffff);
+  }
+}
+
+// ============================================================================
+// 动画
+// ============================================================================
+
+@keyframes legend-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes content-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================================================
+// 响应式调整
+// ============================================================================
+
+@media screen and (max-width: 768px) {
+  .cyber-legend {
+    min-width: 180px;
+    max-width: 250px;
+
+    &--top-left,
+    &--top-right {
+      top: 10px;
+      left: 10px;
+      right: auto;
+    }
+
+    &--bottom-left,
+    &--bottom-right {
+      bottom: 10px;
+      left: 10px;
+      right: auto;
+    }
+
+    &__title {
+      font-size: 0.75rem;
+    }
+
+    &__stat-value,
+    &__label,
+    &__count {
+      font-size: 0.625rem;
+    }
+  }
+}
+
+// ============================================================================
+// 可访问性
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .cyber-legend {
+    animation: none;
+
+    &__content {
+      animation: none;
+    }
+
+    &__item {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 打印样式
+// ============================================================================
+
+@media print {
+  .cyber-legend {
+    position: static;
+    background: white;
+    border: 1px solid #000;
+    box-shadow: none;
+    margin: 1rem;
+  }
+}

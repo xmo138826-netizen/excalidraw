@@ -1,0 +1,222 @@
+/**
+ * 赛博朋克背景效果
+ *
+ * 包括网格背景、扫描线效果等
+ */
+
+.excalidraw.theme--cyberpunk {
+  // ============================================================================
+  // 网格背景动画
+  // ============================================================================
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--cyber-grid);
+    background-size: var(--cyber-grid-size) var(--cyber-grid-size);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    animation: grid-scroll 20s linear infinite;
+  }
+
+  // ============================================================================
+  // 扫描线效果
+  // ============================================================================
+  &::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(176, 38, 255, 0.03) 2px,
+      rgba(176, 38, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+    animation: scanline 8s linear infinite;
+  }
+
+  // ============================================================================
+  // 可选: 粒子背景 (可以通过 CSS 类启用)
+  // ============================================================================
+  &.cyber-particles {
+    .cyber-particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+
+      .particle {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: var(--color-primary);
+        border-radius: 50%;
+        opacity: 0.5;
+        animation: particle-float 10s infinite ease-in-out;
+        box-shadow: 0 0 10px var(--color-primary);
+
+        &:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        &:nth-child(2) { left: 30%; top: 60%; animation-delay: 2s; }
+        &:nth-child(3) { left: 50%; top: 40%; animation-delay: 4s; }
+        &:nth-child(4) { left: 70%; top: 80%; animation-delay: 6s; }
+        &:nth-child(5) { left: 90%; top: 30%; animation-delay: 8s; }
+      }
+    }
+  }
+
+  // ============================================================================
+  // 可选: 发光区域 (可以通过 CSS 类启用)
+  // ============================================================================
+  &.cyber-glows {
+    .cyber-glows-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.15;
+        animation: glow-pulse 8s infinite ease-in-out;
+
+        &.glow-1 {
+          width: 400px;
+          height: 400px;
+          background: var(--color-primary);
+          top: 10%;
+          left: 10%;
+          animation-delay: 0s;
+        }
+
+        &.glow-2 {
+          width: 300px;
+          height: 300px;
+          background: var(--color-accent);
+          top: 60%;
+          right: 10%;
+          animation-delay: 4s;
+        }
+
+        &.glow-3 {
+          width: 350px;
+          height: 350px;
+          background: var(--color-secondary);
+          bottom: 10%;
+          left: 30%;
+          animation-delay: 2s;
+        }
+      }
+    }
+  }
+}
+
+// ============================================================================
+// 动画定义
+// ============================================================================
+
+/**
+ * 网格滚动动画
+ */
+@keyframes grid-scroll {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 40px;
+  }
+}
+
+/**
+ * 扫描线动画
+ */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/**
+ * 粒子浮动动画
+ */
+@keyframes particle-float {
+  0%, 100% {
+    transform: translate(0, 0);
+    opacity: 0.5;
+  }
+  25% {
+    transform: translate(20px, -20px);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-10px, 10px);
+    opacity: 0.3;
+  }
+  75% {
+    transform: translate(15px, 15px);
+    opacity: 0.6;
+  }
+}
+
+/**
+ * 发光脉冲动画
+ */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.1);
+  }
+}
+
+// ============================================================================
+// 响应式调整
+// ============================================================================
+
+@media screen and (max-width: 768px) {
+  .excalidraw.theme--cyberpunk {
+    &::before {
+      --cyber-grid-size: 30px; // 移动端使用更小的网格
+    }
+  }
+}
+
+// ============================================================================
+// 性能优化
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  .excalidraw.theme--cyberpunk {
+    &::before,
+    &::after,
+    .cyber-particles-container .particle,
+    .cyber-glows-container .glow {
+      animation: none;
+    }
+  }
+}

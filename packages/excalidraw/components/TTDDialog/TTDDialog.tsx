@@ -12,6 +12,7 @@ import TTDDialogTabs from "./TTDDialogTabs";
 import { TTDDialogTabTriggers } from "./TTDDialogTabTriggers";
 import { TTDDialogTabTrigger } from "./TTDDialogTabTrigger";
 import { TTDDialogTab } from "./TTDDialogTab";
+import { MindMapTab } from "./MindMapTab";
 
 import "./TTDDialog.scss";
 
@@ -53,7 +54,7 @@ const TTDDialogBase = withInternalFallback(
     tab,
     ...rest
   }: {
-    tab: "text-to-diagram" | "mermaid";
+    tab: "text-to-diagram" | "mermaid" | "mindmap";
   } & (
     | {
         onTextSubmit(
@@ -108,6 +109,14 @@ const TTDDialogBase = withInternalFallback(
               <TTDDialogTabTrigger tab="mermaid">
                 {t("mermaid.label")}
               </TTDDialogTabTrigger>
+              <TTDDialogTabTrigger tab="mindmap">
+                <div className="ttd-dialog-tab-trigger__content">
+                  思维导图
+                  <div className="ttd-dialog-tab-trigger__badge">
+                    AI
+                  </div>
+                </div>
+              </TTDDialogTabTrigger>
             </TTDDialogTabTriggers>
           )}
 
@@ -127,6 +136,9 @@ const TTDDialogBase = withInternalFallback(
               mermaidToExcalidrawLib={mermaidToExcalidrawLib}
               isActive={tab === "mermaid"}
             />
+          </TTDDialogTab>
+          <TTDDialogTab className="ttd-dialog-content" tab="mindmap">
+            <MindMapTab />
           </TTDDialogTab>
         </TTDDialogTabs>
       </Dialog>

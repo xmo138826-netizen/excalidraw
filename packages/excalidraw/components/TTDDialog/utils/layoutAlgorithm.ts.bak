@@ -1,0 +1,391 @@
+/**
+ * 思维导图布局算法
+ *
+ * 实现树状结构的自动布局,支持水平、垂直和径向三种布局方式
+ */
+
+import type { MindMapDialog } from "../types";
+
+/**
+ * 节点位置信息
+ */
+export interface NodePosition {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  level: number;
+}
+
+/**
+ * 布局结果
+ */
+export interface LayoutResult {
+  positions: Map<string, NodePosition>;
+  totalWidth: number;
+  totalHeight: number;
+}
+
+/**
+ * 默认布局配置
+ */
+export const DEFAULT_LAYOUT: MindMapDialog.LayoutConfig = {
+  type: "horizontal",
+  nodeWidth: 160,
+  nodeHeight: 60,
+  horizontalGap: 80,
+  verticalGap: 40,
+};
+
+/**
+ * 水平布局算法
+ *
+ * 根节点在左侧,子节点向右展开
+ */
+const horizontalLayout = (
+  rootNode: MindMapDialog.NodeData,
+  config: MindMapDialog.LayoutConfig
+): LayoutResult => {
+  const positions = new Map<string, NodePosition>();
+  const { nodeWidth, nodeHeight, horizontalGap, verticalGap } = config;
+
+  // 第一步: 计算每个子树的高度
+  const subtreeHeights = new Map<string, number>();
+
+  const calculateSubtreeHeight = (node: MindMapDialog.NodeData): number => {
+    if (!node.children || node.children.length === 0) {
+      const height = nodeHeight;
+      subtreeHeights.set(node.id, height);
+      return height;
+    }
+
+    let totalHeight = 0;
+    node.children.forEach((child) => {
+      totalHeight += calculateSubtreeHeight(child);
+    });
+
+    // 加上子节点之间的间隙
+    totalHeight += (node.children.length - 1) * verticalGap;
+
+    subtreeHeights.set(node.id, totalHeight);
+    return totalHeight;
+  };
+
+  calculateSubtreeHeight(rootNode);
+
+  // 第二步: 递归布局
+  const layoutNode = (
+    node: MindMapDialog.NodeData,
+    x: number,
+    y: number
+  ): void => {
+    // 设置当前节点位置
+    positions.set(node.id, {
+      id: node.id,
+      x,
+      y,
+      width: nodeWidth,
+      height: nodeHeight,
+      level: node.level,
+    });
+
+    // 如果没有子节点,直接返回
+    if (!node.children || node.children.length === 0) {
+      return;
+    }
+
+    // 计算子节点的起始 Y 坐标
+    // 使子树在当前节点的垂直中心对齐
+    const subtreeHeight = subtreeHeights.get(node.id)!;
+    const currentY = y - subtreeHeight / 2;
+
+    // 递归布局子节点
+    let childY = currentY;
+    const childX = x + nodeWidth + horizontalGap;
+
+    node.children.forEach((child) => {
+      const childSubtreeHeight = subtreeHeights.get(child.id)!;
+
+      // 子节点在其子树的垂直中心
+      const childCenterY = childY + childSubtreeHeight / 2;
+
+      layoutNode(child, childX, childCenterY - nodeHeight / 2);
+
+      // 移动到下一个子节点的起始位置
+      childY += childSubtreeHeight + verticalGap;
+    });
+  };
+
+  // 从根节点开始布局
+  layoutNode(rootNode, 0, 0);
+
+  // 计算总宽度和高度
+  let maxX = 0;
+  let maxY = 0;
+  let minY = 0;
+
+  positions.forEach((pos) => {
+    maxX = Math.max(maxX, pos.x + pos.width);
+    maxY = Math.max(maxY, pos.y + pos.height);
+    minY = Math.min(minY, pos.y);
+  });
+
+  const totalWidth = maxX;
+  const totalHeight = maxY - minY;
+
+  return { positions, totalWidth, totalHeight };
+};
+
+/**
+ * 垂直布局算法
+ *
+ * 根节点在顶部,子节点向下展开
+ */
+const verticalLayout = (
+  rootNode: MindMapDialog.NodeData,
+  config: MindMapDialog.LayoutConfig
+): LayoutResult => {
+  const positions = new Map<string, NodePosition>();
+  const { nodeWidth, nodeHeight, horizontalGap, verticalGap } = config;
+
+  // 第一步: 计算每个子树的宽度
+  const subtreeWidths = new Map<string, number>();
+
+  const calculateSubtreeWidth = (node: MindMapDialog.NodeData): number => {
+    if (!node.children || node.children.length === 0) {
+      const width = nodeWidth;
+      subtreeWidths.set(node.id, width);
+      return width;
+    }
+
+    let totalWidth = 0;
+    node.children.forEach((child) => {
+      totalWidth += calculateSubtreeWidth(child);
+    });
+
+    // 加上子节点之间的间隙
+    totalWidth += (node.children.length - 1) * horizontalGap;
+
+    subtreeWidths.set(node.id, totalWidth);
+    return totalWidth;
+  };
+
+  calculateSubtreeWidth(rootNode);
+
+  // 第二步: 递归布局
+  const layoutNode = (
+    node: MindMapDialog.NodeData,
+    x: number,
+    y: number
+  ): void => {
+    // 设置当前节点位置
+    positions.set(node.id, {
+      id: node.id,
+      x,
+      y,
+      width: nodeWidth,
+      height: nodeHeight,
+      level: node.level,
+    });
+
+    // 如果没有子节点,直接返回
+    if (!node.children || node.children.length === 0) {
+      return;
+    }
+
+    // 计算子节点的起始 X 坐标
+    const subtreeWidth = subtreeWidths.get(node.id)!;
+    const currentX = x - subtreeWidth / 2;
+
+    // 递归布局子节点
+    let childX = currentX;
+    const childY = y + nodeHeight + verticalGap;
+
+    node.children.forEach((child) => {
+      const childSubtreeWidth = subtreeWidths.get(child.id)!;
+
+      // 子节点在其子树的水平中心
+      const childCenterX = childX + childSubtreeWidth / 2;
+
+      layoutNode(child, childCenterX - nodeWidth / 2, childY);
+
+      // 移动到下一个子节点的起始位置
+      childX += childSubtreeWidth + horizontalGap;
+    });
+  };
+
+  // 从根节点开始布局
+  layoutNode(rootNode, 0, 0);
+
+  // 计算总宽度和高度
+  let maxX = 0;
+  let maxY = 0;
+  let minX = 0;
+
+  positions.forEach((pos) => {
+    maxX = Math.max(maxX, pos.x + pos.width);
+    maxY = Math.max(maxY, pos.y + pos.height);
+    minX = Math.min(minX, pos.x);
+  });
+
+  const totalWidth = maxX - minX;
+  const totalHeight = maxY;
+
+  return { positions, totalWidth, totalHeight };
+};
+
+/**
+ * 径向布局算法
+ *
+ * 根节点在中心,子节点呈放射状向外展开
+ */
+const radialLayout = (
+  rootNode: MindMapDialog.NodeData,
+  config: MindMapDialog.LayoutConfig
+): LayoutResult => {
+  const positions = new Map<string, NodePosition>();
+  const { nodeWidth, nodeHeight, horizontalGap } = config;
+
+  // 统计每个层级的节点数
+  const levelCounts = new Map<number, number>();
+
+  const countNodesPerLevel = (node: MindMapDialog.NodeData, level: number) => {
+    levelCounts.set(level, (levelCounts.get(level) || 0) + 1);
+    node.children?.forEach((child) => countNodesPerLevel(child, level + 1));
+  };
+
+  countNodesPerLevel(rootNode, 0);
+
+  // 计算每个层级的半径
+  const levelRadius = new Map<number, number>();
+  levelRadius.set(0, 0);
+
+  let currentRadius = nodeWidth + horizontalGap;
+  levelCounts.forEach((count, level) => {
+    if (level > 0) {
+      levelRadius.set(level, currentRadius);
+      // 根据节点数增加半径
+      const angleStep = (2 * Math.PI) / count;
+      const arcLength = angleStep * currentRadius;
+      const neededRadius = (arcLength + nodeWidth + horizontalGap) / (2 * Math.PI);
+      currentRadius = Math.max(currentRadius + nodeHeight + horizontalGap, neededRadius);
+    }
+  });
+
+  // 第二步: 递归布局
+  const anglePerNode = new Map<string, number>();
+
+  const layoutNode = (
+    node: MindMapDialog.NodeData,
+    x: number,
+    y: number,
+    startAngle: number,
+    endAngle: number
+  ): void => {
+    // 设置当前节点位置
+    positions.set(node.id, {
+      id: node.id,
+      x: x - nodeWidth / 2,
+      y: y - nodeHeight / 2,
+      width: nodeWidth,
+      height: nodeHeight,
+      level: node.level,
+    });
+
+    // 如果没有子节点,直接返回
+    if (!node.children || node.children.length === 0) {
+      return;
+    }
+
+    // 计算每个子节点占用的角度范围
+    const totalAngle = endAngle - startAngle;
+    const angleStep = totalAngle / node.children.length;
+
+    // 递归布局子节点
+    node.children.forEach((child, index) => {
+      const childAngle = startAngle + angleStep * (index + 0.5);
+      const childRadius = levelRadius.get(child.level)!;
+
+      const childX = x + childRadius * Math.cos(childAngle);
+      const childY = y + childRadius * Math.sin(childAngle);
+
+      const childStartAngle = startAngle + angleStep * index;
+      const childEndAngle = startAngle + angleStep * (index + 1);
+
+      layoutNode(child, childX, childY, childStartAngle, childEndAngle);
+    });
+  };
+
+  // 从根节点开始布局
+  layoutNode(rootNode, 0, 0, 0, 2 * Math.PI);
+
+  // 计算总宽度和高度
+  let maxX = 0;
+  let maxY = 0;
+  let minX = 0;
+  let minY = 0;
+
+  positions.forEach((pos) => {
+    maxX = Math.max(maxX, pos.x + pos.width);
+    maxY = Math.max(maxY, pos.y + pos.height);
+    minX = Math.min(minX, pos.x);
+    minY = Math.min(minY, pos.y);
+  });
+
+  const totalWidth = maxX - minX;
+  const totalHeight = maxY - minY;
+
+  return { positions, totalWidth, totalHeight };
+};
+
+/**
+ * 主布局函数
+ *
+ * 根据配置选择合适的布局算法
+ */
+export const calculateMindMapLayout = (
+  rootNode: MindMapDialog.NodeData,
+  config: Partial<MindMapDialog.LayoutConfig> = {}
+): LayoutResult => {
+  const finalConfig = { ...DEFAULT_LAYOUT, ...config };
+
+  switch (finalConfig.type) {
+    case "horizontal":
+      return horizontalLayout(rootNode, finalConfig);
+    case "vertical":
+      return verticalLayout(rootNode, finalConfig);
+    case "radial":
+      return radialLayout(rootNode, finalConfig);
+    default:
+      return horizontalLayout(rootNode, finalConfig);
+  }
+};
+
+/**
+ * 将布局结果居中
+ */
+export const centerLayout = (
+  layout: LayoutResult,
+  canvasWidth: number,
+  canvasHeight: number
+): LayoutResult => {
+  const offsetX = (canvasWidth - layout.totalWidth) / 2;
+  const offsetY = (canvasHeight - layout.totalHeight) / 2;
+
+  const centeredPositions = new Map<string, NodePosition>();
+
+  layout.positions.forEach((pos, id) => {
+    centeredPositions.set(id, {
+      ...pos,
+      x: pos.x + offsetX,
+      y: pos.y + offsetY,
+    });
+  });
+
+  return {
+    positions: centeredPositions,
+    totalWidth: layout.totalWidth,
+    totalHeight: layout.totalHeight,
+  };
+};

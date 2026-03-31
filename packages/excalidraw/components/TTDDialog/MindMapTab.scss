@@ -1,0 +1,241 @@
+/**
+ * MindMapTab 组件样式
+ */
+
+.mindmap-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mindmap-input {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mindmap-input h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.mindmap-description {
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  text-align: center;
+  margin: 0;
+}
+
+.mindmap-textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--default-border-color);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--input-bg-color);
+  color: var(--color-on-surface);
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(176, 38, 255, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: var(--color-on-surface-variant);
+  }
+}
+
+.mindmap-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.mindmap-generate-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 0 20px rgba(176, 38, 255, 0.5);
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.mindmap-error {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: rgba(255, 0, 85, 0.1);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--border-radius-lg);
+  color: var(--color-danger);
+}
+
+.mindmap-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--color-surface-high);
+  border-radius: var(--border-radius-lg);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--color-gray-20);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  animation: progress-shimmer 2s infinite;
+}
+
+.progress-text {
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  text-align: center;
+}
+
+.mindmap-result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: var(--color-surface-high);
+  border: 2px solid var(--default-border-color);
+  border-radius: var(--border-radius-lg);
+}
+
+.mindmap-result h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.mindmap-code {
+  background-color: var(--color-surface-mid);
+  padding: 1rem;
+  border-radius: var(--border-radius-md);
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.mindmap-note {
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+// 动画
+@keyframes progress-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// 赛博朋克主题覆盖
+.excalidraw.theme--cyberpunk {
+  .mindmap-textarea {
+    background: rgba(10, 10, 15, 0.8);
+    backdrop-filter: blur(10px);
+    border-color: rgba(176, 38, 255, 0.3);
+
+    &:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 15px rgba(176, 38, 255, 0.3);
+    }
+  }
+
+  .mindmap-generate-btn {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+      transform: rotate(45deg);
+      animation: cyber-shine 3s infinite;
+    }
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 0 25px rgba(176, 38, 255, 0.8),
+                  0 0 50px rgba(176, 38, 255, 0.4);
+    }
+  }
+
+  .mindmap-progress {
+    background: rgba(10, 10, 15, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(176, 38, 255, 0.3);
+  }
+
+  .mindmap-result {
+    background: rgba(10, 10, 15, 0.6);
+    backdrop-filter: blur(10px);
+    border-color: rgba(176, 38, 255, 0.3);
+  }
+}
+
+@keyframes cyber-shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
