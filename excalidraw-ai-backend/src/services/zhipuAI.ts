@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import fetch, { RequestInfo, RequestInit, Response } from "node-fetch";
 import type { ZhipuAIRequest, ZhipuAIStreamChunk, ZhipuAIMessage } from "../types";
 import { config } from "../config/env";
 import { MINDMAP_SYSTEM_PROMPT, enhanceUserPrompt } from "../prompts/mindmapPrompts";
@@ -159,7 +159,7 @@ export class ZhipuAIService {
         throw new Error(`Zhipu AI API error: ${response.status} - ${errorText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as any;
       const content = data.choices[0]?.message?.content || "";
 
       console.log("✅ Zhipu AI response received");
